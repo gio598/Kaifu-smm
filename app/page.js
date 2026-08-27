@@ -71,62 +71,93 @@ export default function HomePage() {
   }
 
   return (
-    <div className="container">
-      <h1>Auto Order SMM</h1>
-      <p className="subtitle">Pilih layanan, bayar QRIS, order langsung diproses otomatis — tanpa saldo.</p>
+    <div className="page">
+      <div className="topbar">
+        <div className="mark">A</div>
+        <div className="word">Auto Order SMM</div>
+      </div>
+
+      <h1>Order tanpa saldo</h1>
+      <p className="subtitle">Pilih layanan, bayar QRIS, order langsung diproses otomatis begitu lunas.</p>
 
       {error && <div className="error-box">{error}</div>}
 
-      <div className="card">
-        <form onSubmit={handleSearch}>
-          <label>Cari layanan (contoh: instagram followers, tiktok views)</label>
-          <input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Ketik kata kunci..." />
-          <button type="submit" disabled={searching}>{searching ? 'Mencari...' : 'Cari Layanan'}</button>
-        </form>
+      <div className="step active">
+        <div className="step-num">1</div>
+        <div className="step-body">
+          <div className="step-label">Cari layanan</div>
+          <div className="card">
+            <form onSubmit={handleSearch}>
+              <label style={{ marginTop: 0 }}>Kata kunci</label>
+              <input
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                placeholder="mis. instagram followers, tiktok views"
+              />
+              <button type="submit" disabled={searching}>{searching ? 'Mencari...' : 'Cari Layanan'}</button>
+            </form>
+          </div>
+        </div>
       </div>
 
       {services.length > 0 && (
-        <div className="card">
-          <label style={{ marginTop: 0 }}>Pilih layanan</label>
-          {services.map((s) => (
-            <div
-              key={s.id}
-              className={`service-item${selected?.id === s.id ? ' selected' : ''}`}
-              onClick={() => setSelected(s)}
-            >
-              <span className="service-name">{s.name}</span>
-              <span className="service-price">Rp {s.pricePer1000.toLocaleString('id-ID')}/1000</span>
+        <div className="step active">
+          <div className="step-num">2</div>
+          <div className="step-body">
+            <div className="step-label">Pilih layanan</div>
+            <div className="card">
+              {services.map((s) => (
+                <div
+                  key={s.id}
+                  className={`service-item${selected?.id === s.id ? ' selected' : ''}`}
+                  onClick={() => setSelected(s)}
+                >
+                  <span className="service-name">{s.name}</span>
+                  <span className="service-price">Rp{s.pricePer1000.toLocaleString('id-ID')}/1K</span>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       )}
 
       {selected && (
-        <div className="card">
-          <form onSubmit={handleCheckout}>
-            <label>Layanan dipilih</label>
-            <div className="muted">{selected.name} (min {selected.min}, max {selected.max})</div>
+        <div className="step active">
+          <div className="step-num">3</div>
+          <div className="step-body">
+            <div className="step-label">Detail &amp; bayar</div>
+            <div className="card">
+              <form onSubmit={handleCheckout}>
+                <div className="muted">{selected.name}</div>
 
-            <label>Jumlah</label>
-            <input
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder={`${selected.min} - ${selected.max}`}
-            />
+                <label>Jumlah (min {selected.min}, max {selected.max})</label>
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  placeholder={`${selected.min} - ${selected.max}`}
+                />
 
-            <label>Link / Target</label>
-            <input value={target} onChange={(e) => setTarget(e.target.value)} placeholder="https://instagram.com/username" />
+                <label>Link / Target</label>
+                <input value={target} onChange={(e) => setTarget(e.target.value)} placeholder="https://instagram.com/username" />
 
-            {estimatedPrice && (
-              <div className="price-box">
-                <span>Estimasi harga</span>
-                <span>Rp {estimatedPrice.toLocaleString('id-ID')}</span>
-              </div>
-            )}
+                {estimatedPrice && (
+                  <div className="receipt">
+                    <div className="receipt-row">
+                      <span>Jumlah</span>
+                      <span>{parseInt(quantity, 10).toLocaleString('id-ID')}</span>
+                    </div>
+                    <div className="receipt-row total">
+                      <span>Total</span>
+                      <span>Rp {estimatedPrice.toLocaleString('id-ID')}</span>
+                    </div>
+                  </div>
+                )}
 
-            <button type="submit" disabled={submitting}>{submitting ? 'Memproses...' : 'Bayar Sekarang'}</button>
-          </form>
+                <button type="submit" disabled={submitting}>{submitting ? 'Memproses...' : 'Bayar dengan QRIS'}</button>
+              </form>
+            </div>
+          </div>
         </div>
       )}
     </div>

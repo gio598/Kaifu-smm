@@ -28,7 +28,8 @@ export default function OrderStatusPage({ params }) {
 
   if (error) {
     return (
-      <div className="container">
+      <div className="page">
+        <div className="topbar"><div className="mark">A</div><div className="word">Auto Order SMM</div></div>
         <div className="error-box">{error}</div>
       </div>
     );
@@ -36,59 +37,73 @@ export default function OrderStatusPage({ params }) {
 
   if (!data) {
     return (
-      <div className="container">
+      <div className="page">
+        <div className="topbar"><div className="mark">A</div><div className="word">Auto Order SMM</div></div>
         <p className="muted">Memuat...</p>
       </div>
     );
   }
 
+  const statusLabel = {
+    pending: 'Menunggu Pembayaran',
+    paid: 'Sudah Dibayar',
+    expired: 'Kadaluwarsa',
+  }[data.paymentStatus];
+
   return (
-    <div className="container">
-      <h1>Order {data.orderId}</h1>
-      <p className="subtitle">{data.serviceName} — {data.quantity} pcs</p>
+    <div className="page">
+      <div className="topbar"><div className="mark">A</div><div className="word">Auto Order SMM</div></div>
+
+      <h1>{data.serviceName}</h1>
+      <p className="subtitle">
+        <span className="order-id">{data.orderId}</span> &middot; {data.quantity.toLocaleString('id-ID')} pcs
+      </p>
+
+      <div style={{ marginBottom: 16 }}>
+        <span className={`status-badge status-${data.paymentStatus}`}>{statusLabel}</span>
+      </div>
+
+      {data.paymentStatus === 'pending' && data.qrImage && (
+        <div className="qr-card">
+          <img src={data.qrImage} alt="QRIS" />
+          <p className="muted" style={{ marginTop: 14 }}>
+            Scan pakai e-wallet atau m-banking apa saja yang support QRIS.<br />Halaman ini otomatis update.
+          </p>
+        </div>
+      )}
+
+      {data.paymentStatus === 'expired' && (
+        <div className="card">
+          <p className="muted">QRIS sudah kadaluwarsa. Silakan buat order baru dari halaman utama.</p>
+        </div>
+      )}
 
       <div className="card">
-        <div style={{ marginBottom: 12 }}>
-          <span className={`status-badge status-${data.paymentStatus}`}>
-            {data.paymentStatus === 'pending' && 'Menunggu Pembayaran'}
-            {data.paymentStatus === 'paid' && 'Sudah Dibayar'}
-            {data.paymentStatus === 'expired' && 'Kadaluwarsa'}
-          </span>
-        </div>
-
-        {data.paymentStatus === 'pending' && data.qrImage && (
-          <div className="qr-wrap">
-            <img src={data.qrImage} alt="QRIS" />
-            <p className="muted" style={{ marginTop: 12 }}>
-              Scan pakai aplikasi e-wallet / m-banking apapun yang support QRIS.
-              Halaman ini otomatis update tiap 5 detik.
-            </p>
+        <div className="receipt" style={{ marginTop: 0, paddingTop: 0, borderTop: 'none' }}>
+          <div className="receipt-row">
+            <span>Target</span>
+            <span style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{data.target}</span>
           </div>
-        )}
-
-        {data.paymentStatus === 'expired' && (
-          <p className="muted">QRIS sudah kadaluwarsa. Silakan buat order baru dari halaman utama.</p>
-        )}
-
-        <div className="price-box">
-          <span>Total Bayar</span>
-          <span>Rp {Number(data.totalPayment).toLocaleString('id-ID')}</span>
+          <div className="receipt-row total">
+            <span>Total Bayar</span>
+            <span>Rp {Number(data.totalPayment).toLocaleString('id-ID')}</span>
+          </div>
         </div>
       </div>
 
       {data.paymentStatus === 'paid' && (
         <div className="card">
-          <label style={{ marginTop: 0 }}>Status Order SMM</label>
+          <div className="step-label">Status order SMM</div>
           {data.smmStatus === 'gagal_kirim' ? (
             <>
-              <p style={{ color: '#ff8fa3' }}>
+              <p style={{ color: 'var(--danger)', fontSize: 14 }}>
                 Pembayaran berhasil, tapi order gagal otomatis terkirim ke provider ({data.errorMessage || 'error tidak diketahui'}).
               </p>
               <p className="muted">Simpan Order ID ini dan hubungi admin untuk diproses manual.</p>
             </>
           ) : (
             <>
-              <p>{data.smmStatusLabel || 'Sedang diproses...'}</p>
+              <p style={{ fontSize: 14, margin: '4px 0' }}>{data.smmStatusLabel || 'Sedang diproses...'}</p>
               {data.smmOrderId && <p className="muted">ID Order Provider: {data.smmOrderId}</p>}
             </>
           )}
